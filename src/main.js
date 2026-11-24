@@ -2,7 +2,7 @@ $(document).ready(function () {
   // =============================
   // Application State
   // =============================
-  let tasks = JSON.parse(sessionStorage.getItem("todos")) || [];
+  let tasks = JSON.parse(localStorage.getItem("todos")) || [];
   let deletedTask = null;
   let deletedTaskIndex = null;
   let undoTimeout = null;
@@ -41,13 +41,13 @@ $(document).ready(function () {
 
   function getDailyQuote() {
     const today = new Date().toDateString();
-    const stored = sessionStorage.getItem("dailyQuote");
+    const stored = localStorage.getItem("dailyQuote");
     if (stored) {
       const parsed = JSON.parse(stored);
       if (parsed.date === today) return parsed.quote;
     }
     const quote = quotes[Math.floor(Math.random() * quotes.length)];
-    sessionStorage.setItem(
+    localStorage.setItem(
       "dailyQuote",
       JSON.stringify({ date: today, quote }),
     );
@@ -127,11 +127,11 @@ $(document).ready(function () {
     $("body").css("color", colors.text);
     $("#themeSelector span").text(theme.name);
     $("#themeSelector i").attr("class", `bi ${theme.icon}`);
-    sessionStorage.setItem("theme", themeName);
+    localStorage.setItem("theme", themeName);
     renderTasks();
   }
 
-  applyTheme(sessionStorage.getItem("theme") || "dark");
+  applyTheme(localStorage.getItem("theme") || "dark");
 
   $("#themeSelector").on("click", function () {
     const next = currentTheme === "dark" ? "achaemenid" : "dark";
@@ -143,7 +143,7 @@ $(document).ready(function () {
   // Session Storage Info
   // =============================
   function updateSessionInfo() {
-    const json = sessionStorage.getItem("todos") || "";
+    const json = localStorage.getItem("todos") || "";
     const bytes = new Blob([json]).size;
     const kb = (bytes / 1024).toFixed(2);
     $("#sessionSize").text(`${kb} KB`);
@@ -204,7 +204,7 @@ $(document).ready(function () {
       () => {
         tasks = [];
         deletedTask = null;
-        sessionStorage.removeItem("todos");
+        localStorage.removeItem("todos");
         renderTasks();
         updateSessionInfo();
       },
@@ -250,7 +250,7 @@ $(document).ready(function () {
             `فایل پشتیبان شامل ${backup.tasks.length} وظیفه است. جایگزین وظایف فعلی شود؟`,
             () => {
               tasks = backup.tasks;
-              sessionStorage.setItem("todos", JSON.stringify(tasks));
+              localStorage.setItem("todos", JSON.stringify(tasks));
               renderTasks();
               updateSessionInfo();
             },
@@ -457,7 +457,7 @@ $(document).ready(function () {
     if (!task) return;
     if (!task.subtasks) task.subtasks = [];
     task.subtasks.push({ id: Date.now(), title, completed: false });
-    sessionStorage.setItem("todos", JSON.stringify(tasks));
+    localStorage.setItem("todos", JSON.stringify(tasks));
     renderTasks();
   }
 
@@ -467,7 +467,7 @@ $(document).ready(function () {
     const subtask = task.subtasks.find((st) => st.id == subtaskId);
     if (subtask) {
       subtask.completed = !subtask.completed;
-      sessionStorage.setItem("todos", JSON.stringify(tasks));
+      localStorage.setItem("todos", JSON.stringify(tasks));
       renderTasks();
     }
   };
@@ -476,7 +476,7 @@ $(document).ready(function () {
     const task = tasks.find((t) => t.id == taskId);
     if (!task?.subtasks) return;
     task.subtasks = task.subtasks.filter((st) => st.id != subtaskId);
-    sessionStorage.setItem("todos", JSON.stringify(tasks));
+    localStorage.setItem("todos", JSON.stringify(tasks));
     renderTasks();
   };
 
@@ -502,7 +502,7 @@ $(document).ready(function () {
     $("#undoBtn").on("click", () => {
       if (deletedTask !== null) {
         tasks.splice(deletedTaskIndex, 0, deletedTask);
-        sessionStorage.setItem("todos", JSON.stringify(tasks));
+        localStorage.setItem("todos", JSON.stringify(tasks));
         deletedTask = null;
         deletedTaskIndex = null;
         renderTasks();
@@ -547,7 +547,7 @@ $(document).ready(function () {
           newOrder.push(tasks.find((t) => t.id == $(this).data("id")));
         });
         tasks = newOrder;
-        sessionStorage.setItem("todos", JSON.stringify(tasks));
+        localStorage.setItem("todos", JSON.stringify(tasks));
         updateSessionInfo();
       });
 
@@ -603,7 +603,7 @@ $(document).ready(function () {
         pinned: false,
         subtasks: [],
       });
-      sessionStorage.setItem("todos", JSON.stringify(tasks));
+      localStorage.setItem("todos", JSON.stringify(tasks));
       renderTasks();
       $("#taskInput, #taskDescInput").val("");
       $("#btnLoader").addClass("hidden");
@@ -620,7 +620,7 @@ $(document).ready(function () {
     const task = tasks.find((t) => t.id == id);
     if (task) {
       task.completed = !task.completed;
-      sessionStorage.setItem("todos", JSON.stringify(tasks));
+      localStorage.setItem("todos", JSON.stringify(tasks));
       renderTasks();
       if (task.completed) {
         gsap.from(`.task-card[data-id="${id}"]`, {
@@ -637,7 +637,7 @@ $(document).ready(function () {
     const task = tasks.find((t) => t.id == id);
     if (task) {
       task.pinned = !task.pinned;
-      sessionStorage.setItem("todos", JSON.stringify(tasks));
+      localStorage.setItem("todos", JSON.stringify(tasks));
       renderTasks();
     }
   };
@@ -648,7 +648,7 @@ $(document).ready(function () {
       deletedTask = tasks[index];
       deletedTaskIndex = index;
       tasks.splice(index, 1);
-      sessionStorage.setItem("todos", JSON.stringify(tasks));
+      localStorage.setItem("todos", JSON.stringify(tasks));
       renderTasks();
       showUndoBar();
     }
